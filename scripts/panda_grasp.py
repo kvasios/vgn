@@ -11,6 +11,7 @@ import cv_bridge
 import franka_msgs.msg
 import geometry_msgs.msg
 import numpy as np
+import time
 import rospy
 import sensor_msgs.msg
 
@@ -24,9 +25,12 @@ from vgn.utils.panda_control import PandaCommander
 
 
 # tag lies on the table in the center of the workspace
-T_base_tag = Transform(Rotation.identity(), [0.42, 0.02, 0.21])
+T_base_tag = Transform(Rotation.identity(), [0.47, 0, -.025])
 round_id = 0
 
+# Depth images aquisition speed 
+depth_img_aq_velocity = .5
+depth_img_aq_acceleration = .3
 
 class PandaGraspController(object):
     def __init__(self, args):
@@ -137,17 +141,23 @@ class PandaGraspController(object):
         self.pc.home()
 
     def acquire_tsdf(self):
-        self.pc.goto_joints(self.scan_joints[0])
+        self.pc.goto_joints(self.scan_joints[0],velocity_scaling=depth_img_aq_velocity,acceleration_scaling=depth_img_aq_acceleration)
 
         self.tsdf_server.reset()
         self.tsdf_server.integrate = True
+        time.sleep(.5)
+        self.tsdf_server.integrate = False
 
         for joint_target in self.scan_joints[1:]:
-            self.pc.goto_joints(joint_target)
-
+            self.pc.goto_joints(joint_target,velocity_scaling=depth_img_aq_velocity,acceleration_scaling=depth_img_aq_acceleration)
+            self.tsdf_server.integrate = True
+            time.sleep(.5)
+            self.tsdf_server.integrate = False
+            
         self.tsdf_server.integrate = False
         tsdf = self.tsdf_server.low_res_tsdf
         pc = self.tsdf_server.high_res_tsdf.get_cloud()
+        # print(pc)
 
         return tsdf, pc
 
@@ -204,7 +214,7 @@ class PandaGraspController(object):
 
     def drop(self):
         self.pc.goto_joints(
-            [0.678, 0.097, 0.237, -1.63, -0.031, 1.756, 0.931], 0.2, 0.2
+            [-0.6767124390999488, 0.15831952837470045, -0.2854079951487089, -2.431459563546085, -0.09191743926038437, 2.5772933091518477, -0.33628524998409876], 0.2, 0.2
         )
         self.pc.move_gripper(0.08)
 
@@ -242,8 +252,8 @@ def main(args):
     rospy.init_node("panda_grasp")
     panda_grasp = PandaGraspController(args)
 
-    while True:
-        panda_grasp.run()
+    # while True:
+    panda_grasp.run()
 
 
 if __name__ == "__main__":

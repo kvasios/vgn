@@ -63,3 +63,6 @@ class PandaCommander(object):
         goal = franka_gripper.msg.MoveGoal(width, speed)
         self.move_client.send_goal(goal)
         return self.move_client.wait_for_result(rospy.Duration(2.0))
+    
+    def recover(self):
+        pass

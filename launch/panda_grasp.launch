@@ -24,6 +24,9 @@
     </include>
 
     <!-- Hand-eye calibration -->
-    <node pkg="tf2_ros" type="static_transform_publisher" name="hand_eye_broadcaster" args="0.03226862 -0.06137175  0.04107702 0.00099995 0. 0.39898185 0.91695828 panda_link8 camera_depth_optical_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_broadcaster" args="-0.0537964 -0.0105409 0.0626744 -0.0129089 0.00901153 -0.704977 0.709055 panda_hand camera_color_optical_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="hand_eye_broadcaster" args="-0.0537964 -0.0105409 0.0626744 -0.0129089 0.00901153 -0.704977 0.709055 panda_hand camera_depth_optical_frame" />
+
+<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="hand_eye_broadcaster" args="0.03226862 -0.06137175  0.04107702 0.00099995 0. 0.39898185 0.91695828 panda_link8 camera_depth_optical_frame" /> -->
 
 </launch>
